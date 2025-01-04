@@ -1,0 +1,6 @@
+pandas
+kivy
+selenium
+webdriver_manager
+openpyxl
+pyinstaller

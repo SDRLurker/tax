@@ -1,0 +1,157 @@
+<BoxLayout>:
+    orientation: 'vertical'
+    padding: 10
+    spacing: 10
+    #size_hint_y: None
+    #height: self.minimum_height  # 자식들의 총 높이에 따라 동적으로 설정
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1  # 배경을 흰색으로 설정
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    GridLayout:
+        cols: 2
+        size_hint_y: None
+        height: self.minimum_height
+        H1:
+            text: "해외 주식 양도세 프로그램(2025.01.04)"
+            size_hint_x: 0.8
+        Button:
+            id: hp_button
+            text: "홈페이지"
+            size_hint_x: 0.2
+            size_hint_y: None
+            height: dp(50)
+            on_press: root.homepage()
+
+    GridLayout:
+        cols: 4
+        size_hint_y: None
+        height: self.minimum_height
+        H1:
+            text: "양도세 현황"
+            size_hint_x: 0.7
+        Button:
+            id: init_button
+            text: "초기화"
+            size_hint_x: 0.1
+            size_hint_y: None
+            height: dp(50)
+            on_press: root.init_tax()
+        Button:
+            id: add_button
+            text: "추가(+)"
+            size_hint_x: 0.1
+            size_hint_y: None
+            height: dp(50)
+            on_press: root.add_tax()
+        Button:
+            id: remove_button
+            text: "삭제(-)"
+            size_hint_x: 0.1
+            size_hint_y: None
+            height: dp(50)
+            disabled: True  # 버튼을 비활성화
+            on_press: root.remove_tax()
+
+    GridLayout:
+        id: grid_layout
+        cols: 4
+        size_hint_y: None
+        row_default_height: dp(50)  # 각 행의 기본 높이
+        height: self.minimum_height  # 자식 위젯들의 총 높이에 맞춰 자동으로 크기 조정
+
+        Label:
+            text: "증권사"
+            size_hint_x: 0.25
+        Label:
+            text: "손익"
+            size_hint_x: 0.25
+        Label:
+            text: "제비용"
+            size_hint_x: 0.25
+        Label:
+            text: "차감손익"
+            size_hint_x: 0.25
+
+    GridLayout:
+        cols: 2
+        size_hint_y: None
+        height: self.minimum_height
+        H1:
+            size_hint_x: 0.2
+            size_hint_y: None
+            text: "상태"
+        H1:
+            id: msg
+            size_hint_x: 0.8
+            size_hint_y: None
+            text: ""
+
+    GridLayout:
+        cols: 2
+        spacing: dp(10)
+        padding: dp(10)
+        size_hint_y: None
+        height: self.minimum_height
+
+        Button:
+            id: excel_button
+            text: "엑셀"
+            size_hint_y: None
+            height: dp(50)
+            disabled: True  # 버튼을 비활성화
+            on_press: root.excel()
+
+        Button:
+            id: collect_button
+            text: "수집"
+            size_hint_y: None
+            height: dp(50)
+            on_press: root.create_dataframe()
+
+<H1@Label>:
+    #padding: 1
+    #spacing: 1
+    #height: dp(10)
+    #padding: dp(10)  # 레이블 내부 여백
+    #size_hint_y: None
+    font_size: '32sp'
+    bold: True
+    color: 1, 1, 1, 1  # 흰색 텍스트
+    canvas.before:
+        Color:
+            rgba: 0, 0, 1, 1  # 파란색 배경
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Label>:
+    height: dp(50)  # 각 레이블의 높이를 설정
+    padding: dp(10)  # 레이블 내부 여백
+    color: 0, 0, 0, 1  # 글자 색을 검정색으로 설정
+    font_name: 'NanumGothic.otf'
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1  # 각 레이블의 배경을 흰색으로 설정
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    canvas.after:
+        Color:
+            rgba: 0, 0, 0, 1  # 검은색 테두리 추가
+        Line:
+            width: 1
+            rectangle: self.x, self.y, self.width, self.height
+
+<Button>:
+    background_color: 1, 1, 1, 0.5
+    color: 0, 0, 0, 1
+    disabled_color: 0.5, 0.5, 0.5, 1
+
+<Spinner>:
+    background_color: 1, 1, 1, 0.5
+    color: 0, 0, 0, 1
