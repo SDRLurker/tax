@@ -3,7 +3,7 @@
 ## 소개
 
 * 홈페이지
-  - [https://www.notion.so/sdrlurker/166d1dff257980d3a8e8c71e5c022e81](https://www.notion.so/sdrlurker/166d1dff257980d3a8e8c71e5c022e81)
+  - [https://sdrlurker.notion.site/166d1dff257980d3a8e8c71e5c022e81](https://sdrlurker.notion.site/166d1dff257980d3a8e8c71e5c022e81)
 * 증권사의 해외주식 양도세 자료를 웹브라우저 크롬 selenium을 통해 스크래핑하여 홈택스로 제출할 수 있는 엑셀 파일을 생성할 수 있습니다.
 * 가능한 증권사 (2025.01.04)
   - 한국투자증권
