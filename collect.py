@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -338,7 +339,9 @@ class 키움증권(양도세):
 
 
     def __enter__(self):
-        self.driver = webdriver.Chrome(service=service)
+        options = Options()
+        options.add_argument("--disable-blink-features=AutomationControlled")  # 자동화 탐지 방지
+        self.driver = webdriver.Chrome(service=service, options=options)
         driver = self.driver
         driver.get("https://www1.kiwoom.com/h/loginView")
         time.sleep(self.sec)
