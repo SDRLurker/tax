@@ -24,7 +24,8 @@ import webbrowser
 secu_dic = {
     "한국투자증권": collect.한국투자증권(0),
     "삼성증권": collect.삼성증권(0),
-    "키움증권": collect.키움증권(0)
+    "키움증권": collect.키움증권(0),
+    "신한투자증권": collect.신한투자증권(0)
 }
 
 
@@ -62,7 +63,7 @@ class DataFrameBox(BoxLayout):
         grid_layout = self.ids.grid_layout
         spinner = Spinner(
             text="한국투자증권",
-            values=["한국투자증권", "삼성증권", "키움증권"],
+            values=["한국투자증권", "삼성증권", "키움증권", "신한투자증권"],
             size_hint_x=0.25,
             height=dp(50)
         )

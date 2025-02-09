@@ -476,13 +476,140 @@ class 키움증권(양도세):
         self.quit()
 
 
+class 신한투자증권(양도세):
+    번호 = "116-81-36684"
+    COLLECT_PAGE = "https://www.shinhansec.com/siw/trading/foreign-equity/3826/view.do"
+    def __init__(self, sec):
+        self.sec = sec
+
+    def __enter__(self):
+        self.driver = webdriver.Chrome(service=service)
+        driver = self.driver
+        driver.get("https://www.shinhansec.com/index.html")
+        time.sleep(self.sec)
+        driver.implicitly_wait(1)
+        login_url = "https://www.shinhansec.com/siw/etc/login/view.do"
+        driver.execute_script(f"document.querySelector('#mainFrame').src = '{login_url}';")
+        driver.implicitly_wait(1)
+        time.sleep(self.sec)
+        return self
+
+
+    def is_login(self):
+        driver = self.driver
+        frame = driver.find_element(By.ID, 'mainFrame')
+        driver.switch_to.frame(frame)
+        js_var = driver.execute_script("return SIDATA;")
+        #print(js_var)
+        driver.switch_to.default_content()
+        return js_var[1] != ""
+
+
+    def go_collect_page(self):
+        driver = self.driver
+        driver.execute_script(f"document.querySelector('#mainFrame').src = '{self.COLLECT_PAGE}';")
+        #driver.get(self.COLLECT_PAGE)
+
+    def is_password(self):
+        driver = self.driver
+        frame = driver.find_element(By.ID, 'mainFrame')
+        frame_url = frame.get_attribute('src')
+        assert frame_url == self.COLLECT_PAGE, f"URL이 일치하지 않습니다. 현재 URL은 {current_url}입니다."
+        driver.switch_to.frame(frame)
+        driver.implicitly_wait(1)
+        pwd_field = driver.find_element(By.CSS_SELECTOR,"#inq_pw")
+        pwd_value = driver.execute_script("return arguments[0].value;", pwd_field)
+        print("pwd_value:", pwd_value)
+        driver.switch_to.default_content()
+        return pwd_value
+
+    def collect(self):
+        driver = self.driver
+        frame = driver.find_element(By.ID, 'mainFrame')
+        frame_url = frame.get_attribute('src')
+        assert frame_url == self.COLLECT_PAGE, f"URL이 일치하지 않습니다. 현재 URL은 {current_url}입니다."
+        driver.switch_to.frame(frame)
+        driver.find_element(By.CSS_SELECTOR,"#main > fieldset > button").click()
+        time.sleep(2)
+        공통.print_table_selectors(driver, 'css')
+        # 데이터 퍼오기
+        data = []
+        table = driver.find_element(By.CSS_SELECTOR,"#main > table")
+        for y, tr in enumerate(table.find_elements(By.TAG_NAME,"tr")):
+            actions = ActionChains(driver)
+            actions.move_to_element(tr).perform()
+            td = tr.find_elements(By.TAG_NAME,"td")
+            if y >= 4 and y % 2 == 0:
+                row = [ "" for _ in range(23) ]
+                row[1] = self.번호
+                row[2] = self.해외
+                row[3] = 0
+                row[4] = self.주식
+                row[5] = self.주식
+                row[6] = self.양도
+                row[7] = self.취득
+            for x, value in enumerate(td):
+                #print("({},{}) - {}".format(y, x, td[x].text))
+                if y >= 4:
+                    if y % 2 == 0 and x == 0:
+                        if td[x].text == "검색된 내용이 없습니다.":
+                            break
+                        # 취득일자
+                        row[11] = td[x].text.replace('.',"-")
+                    elif y % 2 == 0 and x == 3:
+                        # ISIN코드
+                        row[20] = td[x].text
+                        # 국가코드
+                        row[21] = row[20][:2]
+                    elif y % 2 == 0 and x == 4:
+                        # 양도주식수
+                        row[3] = int(td[x].text.replace(",", ""))
+                    elif y % 2 == 0 and x == 5:
+                        # 주당취득가액(int)
+                        row[12] = int(td[x].text.replace(",", ""))
+                    elif y % 2 == 0 and x == 6:
+                        # 취득가액
+                        row[13] = int(td[x].text.replace(",", ""))
+                    elif y % 2 == 1 and x == 0:
+                        # 양도일자
+                        row[8] = td[x].text.replace(".", "-")
+                    elif y % 2 == 1 and x == 3:
+                        # 종목명
+                        row[0] = td[x].text
+                    elif y % 2 == 1 and x == 4:
+                        # 제비용
+                        row[14] = int(td[x].text.replace(",", ""))
+                    elif y % 2 == 1 and x == 5:
+                        # 주당양도가액(int)
+                        row[9] = int(td[x].text.replace(",", ""))
+                    elif y % 2 == 1 and x == 6:
+                        # 양도가액(int)
+                        row[10] = int(td[x].text.replace(",", ""))
+            if y >= 4 and y % 2 == 1:
+                print(row)
+                data.append(row)
+        if data:
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(columns=[i for i in range(23)])
+        return df
+
+
+    def quit(self):
+        self.driver.quit()
+
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.quit()
+
 if __name__ == "__main__":
     dfs = []
     df_sums = []
     securities = (
         #("한국투자증권", 한국투자증권(0)),
         #("삼성증권", 삼성증권(0)),
-        ("키움증권", 키움증권(0)),
+        #("키움증권", 키움증권(0)),
+        ("신한투자증권", 신한투자증권(0)),
     )
     #a = 한국투자증권(0) # 수동 로그인 시간
     #a = 삼성증권(0) # 수동 로그인 시간
@@ -506,7 +633,7 @@ if __name__ == "__main__":
                     print(df)
                     break
                 print("데이터 수집에 실패하였습니다. 10초후 재시도 합니다")
-                time.sleep(10)
+                time.sleep(10)            
             dfs.append(df)
             #df = a.collect(10) # 수동 선택시간
             df_sum = df.sum()
