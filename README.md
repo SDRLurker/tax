@@ -5,10 +5,11 @@
 * 홈페이지
   - [https://sdrlurker.notion.site/166d1dff257980d3a8e8c71e5c022e81](https://sdrlurker.notion.site/166d1dff257980d3a8e8c71e5c022e81)
 * 증권사의 해외주식 양도세 자료를 웹브라우저 크롬 selenium을 통해 스크래핑하여 홈택스로 제출할 수 있는 엑셀 파일을 생성할 수 있습니다.
-* 가능한 증권사 (2025.01.04)
+* 가능한 증권사 (2025.02.10)
   - 한국투자증권
   - 삼성증권
   - 키움증권
+  - 신한투자증권
 
 ## 설치방법
 
@@ -21,7 +22,13 @@ pip install -r requirements.txt
 * 윈도우즈 실행파일 생성
 
 ```shell
-show.bat
+show.bat (upx 디렉터리)
+```
+
+* 맥 실행파일 생성
+
+```shell
+./show.sh
 ```
 
 ## 소스설명
