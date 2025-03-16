@@ -11,6 +11,7 @@ import time
 from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
 import openpyxl
+import os
 
 service = Service(executable_path=ChromeDriverManager().install())
 
@@ -602,6 +603,123 @@ class 신한투자증권(양도세):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
+
+class 하나증권(양도세):
+    번호 = "116-81-05992"
+    COLLECT_PAGE = "https://www.hanaw.com/main/bank/online/OB_042000.cmd"
+    def __init__(self, sec):
+        self.sec = sec
+
+    def __enter__(self):
+        download_path = os.getcwd()
+        chrome_options = Options()
+        prefs = {
+            "download.default_directory": download_path,  # 다운로드 경로 설정
+            "download.prompt_for_download": False,  # 다운로드 대화상자 비활성화
+            "download.directory_upgrade": True,
+            "safebrowsing.enabled": True
+        }
+        chrome_options.add_experimental_option("prefs", prefs)
+        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        driver = self.driver
+        driver.get("https://www.hanaw.com/main/customer/login/index.cmd")
+        time.sleep(self.sec)
+        return self
+
+
+    def is_login(self):
+        driver = self.driver
+        s = driver.find_element(By.CSS_SELECTOR,"ul.memberlink.new-link > li > a > span")
+        return s.text == "로그아웃"
+
+
+    def go_collect_page(self):
+        driver = self.driver
+        driver.get(self.COLLECT_PAGE)
+        time.sleep(2)
+        overseas_stock_tab = driver.find_element(By.XPATH, '//ul[@class="tab-selector"]/li/a[contains(text(), "해외주식")]')
+        overseas_stock_tab.click()
+
+    def is_password(self):
+        current_url = self.driver.current_url
+        assert current_url == self.COLLECT_PAGE, f"URL이 일치하지 않습니다. 현재 URL은 {current_url}입니다."
+        driver = self.driver
+        pwd_field = driver.find_element(By.CSS_SELECTOR,"#b_scrt")
+        pwd_value = driver.execute_script("return arguments[0].value;", pwd_field)
+        print("pwd_value:", pwd_value)
+        return pwd_value
+
+    def collect(self):
+        current_url = self.driver.current_url
+        assert current_url == self.COLLECT_PAGE, f"URL이 일치하지 않습니다. 현재 URL은 {current_url}입니다."
+        driver = self.driver
+        time.sleep(2)
+
+        button = driver.find_element(By.CSS_SELECTOR,"#btn1")
+        button.click()
+        time.sleep(10)
+        frame = driver.find_element(By.CSS_SELECTOR,"#ozIframe")
+        x = frame.location['x'] + 190
+        y = frame.location['y'] + 25
+        actions = ActionChains(driver)
+        actions.move_by_offset(x, y).click().perform()
+        time.sleep(5)
+        actions.move_by_offset(385, 385).click().perform()
+        time.sleep(3)
+
+        data = []
+        with open('noname.txt') as f:
+            for line in f.readlines():
+                row = [ "" for _ in range(23) ]
+                row[1] = self.번호
+                row[2] = self.해외
+                row[3] = 0
+                row[4] = self.주식
+                row[5] = self.주식
+                row[6] = self.양도
+                row[7] = self.취득
+                fields = line.split('\t')
+                if len(fields) >= 28 and not line.startswith('cust_nm'):
+                    #print(len(fields), fields)
+                    # 취득일자
+                    row[11] = fields[24][:4] + '-' + fields[24][4:6] + '-' + fields[24][6:8]
+                    # ISIN코드
+                    row[20] = fields[14]
+                    # 국가코드
+                    row[21] = fields[14][:2]
+                    # 양도주식수
+                    row[3] = int(fields[18])
+                    # 주당취득가액(int)
+                    row[12] = int(fields[22])
+                    # 취득가액
+                    row[13] = int(fields[23])
+                    # 양도일자
+                    row[8] = fields[12][:4] + '-' + fields[12][4:6] + '-' + fields[12][6:8]
+                    # 종목명
+                    row[0] = fields[15]
+                    # 제비용
+                    row[14] = int(fields[26])
+                    # 주당양도가액(int)
+                    row[9] = int(fields[19])
+                    # 양도가액(int)
+                    row[10] = int(fields[20])
+                    data.append(row)
+        os.remove('noname.txt')
+        if data:
+            df = pd.DataFrame(data)
+        else:
+            df = pd.DataFrame(columns=[i for i in range(23)])
+        return df
+
+
+    def quit(self):
+        self.driver.quit()
+
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.quit()
+
+
 if __name__ == "__main__":
     dfs = []
     df_sums = []
@@ -609,7 +727,8 @@ if __name__ == "__main__":
         #("한국투자증권", 한국투자증권(0)),
         #("삼성증권", 삼성증권(0)),
         #("키움증권", 키움증권(0)),
-        ("신한투자증권", 신한투자증권(0)),
+        #("신한투자증권", 신한투자증권(0)),
+        ("하나증권", 하나증권(0)),
     )
     #a = 한국투자증권(0) # 수동 로그인 시간
     #a = 삼성증권(0) # 수동 로그인 시간
@@ -633,7 +752,7 @@ if __name__ == "__main__":
                     print(df)
                     break
                 print("데이터 수집에 실패하였습니다. 10초후 재시도 합니다")
-                time.sleep(10)            
+                time.sleep(10)
             dfs.append(df)
             #df = a.collect(10) # 수동 선택시간
             df_sum = df.sum()

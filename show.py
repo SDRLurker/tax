@@ -25,13 +25,14 @@ secu_dic = {
     "한국투자증권": collect.한국투자증권(0),
     "삼성증권": collect.삼성증권(0),
     "키움증권": collect.키움증권(0),
-    "신한투자증권": collect.신한투자증권(0)
+    "신한투자증권": collect.신한투자증권(0),
+    "하나증권": collect.하나증권(0)
 }
 
 
 class DataFrameApp(App):
     icon = "icon.png"
-    title = "해외 주식 양도세 프로그램(2025.02.10)"
+    title = "해외 주식 양도세 프로그램(2025.03.16)"
     def build(self):
         return DataFrameBox()
 
@@ -63,7 +64,7 @@ class DataFrameBox(BoxLayout):
         grid_layout = self.ids.grid_layout
         spinner = Spinner(
             text="한국투자증권",
-            values=["한국투자증권", "삼성증권", "키움증권", "신한투자증권"],
+            values=["한국투자증권", "삼성증권", "키움증권", "신한투자증권", "하나증권"],
             size_hint_x=0.25,
             height=dp(50)
         )
