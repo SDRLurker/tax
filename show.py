@@ -32,7 +32,7 @@ secu_dic = {
 
 class DataFrameApp(App):
     icon = "icon.png"
-    title = "해외 주식 양도세 프로그램(2025.03.16)"
+    title = "해외 주식 양도세 프로그램(2025.04.02)"
     def build(self):
         return DataFrameBox()
 

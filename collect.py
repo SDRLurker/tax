@@ -9,6 +9,8 @@ from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import pandas as pd
 import openpyxl
 import os
@@ -247,7 +249,11 @@ class 삼성증권(양도세):
         driver = self.driver
         frame = driver.find_element(By.ID, 'frmContent')
         driver.switch_to.frame(frame)
-        buttons = driver.find_elements(By.CSS_SELECTOR,"a.logout")
+        try:
+            buttons = driver.find_elements(By.CSS_SELECTOR,"a.logout")
+        except Exception:
+            wait = WebDriverWait(driver, 1)
+            buttons = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, "a.logout")))
         driver.switch_to.default_content()
         return buttons
 
@@ -725,10 +731,10 @@ if __name__ == "__main__":
     df_sums = []
     securities = (
         #("한국투자증권", 한국투자증권(0)),
-        #("삼성증권", 삼성증권(0)),
+        ("삼성증권", 삼성증권(0)),
         #("키움증권", 키움증권(0)),
         #("신한투자증권", 신한투자증권(0)),
-        ("하나증권", 하나증권(0)),
+        #("하나증권", 하나증권(0)),
     )
     #a = 한국투자증권(0) # 수동 로그인 시간
     #a = 삼성증권(0) # 수동 로그인 시간
