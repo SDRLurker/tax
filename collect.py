@@ -140,7 +140,7 @@ class 한국투자증권(양도세):
 
     def is_login(self):
         driver = self.driver
-        buttons = driver.find_elements(By.CSS_SELECTOR,".btn_logout")
+        buttons = driver.find_elements(By.CSS_SELECTOR,".logup")
         return buttons
 
     def go_collect_page(self):
@@ -730,8 +730,8 @@ if __name__ == "__main__":
     dfs = []
     df_sums = []
     securities = (
-        #("한국투자증권", 한국투자증권(0)),
-        ("삼성증권", 삼성증권(0)),
+        ("한국투자증권", 한국투자증권(0)),
+        #("삼성증권", 삼성증권(0)),
         #("키움증권", 키움증권(0)),
         #("신한투자증권", 신한투자증권(0)),
         #("하나증권", 하나증권(0)),
