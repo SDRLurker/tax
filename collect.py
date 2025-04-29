@@ -383,8 +383,19 @@ class 키움증권(양도세):
             '미국':'US',
             '일본':'JP'
         }
+        # 숨기기
+        driver.execute_script("""
+            const el = document.querySelector('.btn-open-favorite');
+            if (el) el.style.display = 'none';
+        """)
+        time.sleep(1)
         driver.find_element(By.CSS_SELECTOR,"#btn_search").click()
         time.sleep(2)
+        # 다시 보이게 하기
+        driver.execute_script("""
+            const el = document.querySelector('.btn-open-favorite');
+            if (el) el.style.display = 'block';
+        """)
         modals = driver.find_elements(By.CSS_SELECTOR,".modal-body-container")
         if len(modals) == 1:
             return pd.DataFrame(columns=[i for i in range(23)])
@@ -441,29 +452,29 @@ class 키움증권(양도세):
             #print(lst)
             if y % 2 == 0:
                 row = [ "" for _ in range(23) ]
+                # 종목명
+                row[0] = lst[2]
                 row[1] = self.번호
                 row[2] = self.해외
                 # 양도주식수
-                row[3] = int(lst[2].replace(",", ""))
+                row[3] = int(lst[3].replace(",", ""))
                 row[4] = self.주식
                 row[5] = self.주식
                 row[6] = self.양도
                 row[7] = self.취득
                 # 양도일자
-                row[8] = lst[3].replace('.', '-')
+                row[8] = lst[4].replace('.', '-')
                 # 양도가액
-                row[10] = int(lst[5].replace(",", ""))
+                row[10] = int(lst[6].replace(",", ""))
                 # 주당양도가액
                 row[9] = int(row[10] / row[3])
                 # 필요경비(int)
-                row[14] = int(lst[6].replace(",", ""))
+                row[14] = int(lst[7].replace(",", ""))
+                # 국외자산코드
+                row[21] = nation_dic.get(lst[1], "")
+            else:
                 # ISIN코드
                 row[20] = lst[1]
-                # 국외자산코드
-                row[21] = nation_dic.get(lst[0], "")
-            else:
-                # 종목명
-                row[0] = lst[1]
                 # 취득일자
                 row[11] = lst[2].replace('.', '-')
                 # 취득가액
@@ -730,9 +741,9 @@ if __name__ == "__main__":
     dfs = []
     df_sums = []
     securities = (
-        ("한국투자증권", 한국투자증권(0)),
+        #("한국투자증권", 한국투자증권(0)),
         #("삼성증권", 삼성증권(0)),
-        #("키움증권", 키움증권(0)),
+        ("키움증권", 키움증권(0)),
         #("신한투자증권", 신한투자증권(0)),
         #("하나증권", 하나증권(0)),
     )
