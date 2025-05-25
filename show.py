@@ -32,7 +32,7 @@ secu_dic = {
 
 class DataFrameApp(App):
     icon = "icon.png"
-    title = "해외 주식 양도세 프로그램(2025.04.02)"
+    title = "해외 주식 양도세 프로그램(2025.05.25)"
     def build(self):
         return DataFrameBox()
 
@@ -170,6 +170,13 @@ class DataFrameBox(BoxLayout):
             sum_data = [['합계', 손익합, 제비용합, 차감손익합]]
             sum_df = pd.DataFrame(sum_data)
             self.sum_dfs.append(sum_df)
+            result_data = [['양도소득금액','과세표준','산출세액','지방세']]
+            과세표준 = 차감손익합 - 2500000 if 차감손익합 >= 2500000 else 0
+            산출세액 = 과세표준//5
+            지방세 = 산출세액//10
+            result_data.append([차감손익합, 과세표준, 산출세액, 지방세])
+            result_df = pd.DataFrame(result_data)
+            self.sum_dfs.append(result_df)
             all_sum_df = pd.concat(self.sum_dfs)
             Clock.schedule_once(lambda dt: self.update_ui(all_sum_df))
             self.ids.msg.text = "수집 완료!"
